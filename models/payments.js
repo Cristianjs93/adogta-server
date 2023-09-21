@@ -1,10 +1,10 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const PaymentSchema = mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: 'User',
     },
     epaycoCustomerId: {
       type: String,
@@ -12,7 +12,7 @@ const PaymentSchema = mongoose.Schema(
     },
     foundationId: {
       type: mongoose.Schema.Types.ObjectId,
-      required: "Foundation",
+      required: 'Foundation',
     },
     ref_payco: {
       type: String,
@@ -42,6 +42,6 @@ const PaymentSchema = mongoose.Schema(
   }
 );
 
-const Payment = mongoose.model("Payment", PaymentSchema);
+const Payment = mongoose.model('Payment', PaymentSchema);
 
 module.exports = Payment;

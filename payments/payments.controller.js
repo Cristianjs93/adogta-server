@@ -1,14 +1,14 @@
-const config = require("../config/index");
-const sendMail = require("../utils/sendMail");
-const epayco = require("epayco-sdk-node")({
+const config = require('../config/index');
+const sendMail = require('../utils/sendMail');
+const epayco = require('epayco-sdk-node')({
   apiKey: config.epaycoApiKey,
   privateKey: config.epaycoPrivateKey,
-  lang: "EN",
+  lang: 'EN',
   test: true,
 });
 
-const User = require("../models/User");
-const Payment = require("../models/payments");
+const User = require('../models/User');
+const Payment = require('../models/payments');
 
 async function epaycoPayment(req, res) {
   const cardInfo = req.body;

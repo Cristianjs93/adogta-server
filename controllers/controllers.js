@@ -1,18 +1,18 @@
-const User = require("../models/User");
-const Foundation = require("../models/Foundation");
-const jwt = require("jsonwebtoken");
-const config = require("../config/index");
-const Pet = require("../models/Pet");
-const AdoptionRequest = require("../models/AdoptionRequest");
-const cloudinary = require("cloudinary").v2;
-const fs = require("fs");
-const crypto = require("crypto");
-const sendEmailRequest = require("../utils/sendEmailRequest");
-require("dotenv").config();
+const User = require('../models/User');
+const Foundation = require('../models/Foundation');
+const jwt = require('jsonwebtoken');
+const config = require('../config/index');
+const Pet = require('../models/Pet');
+const AdoptionRequest = require('../models/AdoptionRequest');
+const cloudinary = require('cloudinary').v2;
+const fs = require('fs');
+const crypto = require('crypto');
+const sendEmailRequest = require('../utils/sendEmailRequest');
+require('dotenv').config();
 
 const templateApproved = config.templateApproved;
 const templateRejected = config.templateRejected;
-const sendMail = require("../utils/sendMail");
+const sendMail = require('../utils/sendMail');
 
 const createUser = async (req, res, next) => {
   const { email, role } = req.body;
@@ -26,9 +26,9 @@ const createUser = async (req, res, next) => {
     const newUser = await new schema[role](req.body);
 
     const hash = crypto
-      .createHash("sha256")
+      .createHash('sha256')
       .update(newUser.email)
-      .digest("hex");
+      .digest('hex');
     newUser.passwordResetToken = hash;
 
     const user = await newUser.save();
@@ -46,9 +46,9 @@ const createUser = async (req, res, next) => {
 
     res.status(201).json({ token });
   } catch (err) {
-    if (err.name === "ValidationError") {
+    if (err.name === 'ValidationError') {
       console.log(err);
-      res.status(422).json({ error: "Email is already taken" });
+      res.status(422).json({ error: 'Email is already taken' });
     } else {
       next(err);
     }
@@ -98,7 +98,7 @@ const createRequest = async (req, res, next) => {
     if (sameAdoptions.length >= 1) {
       return res
         .status(422)
-        .json({ error: "You have already sent a request to adopt this pet" });
+        .json({ error: 'You have already sent a request to adopt this pet' });
     } else {
       const request = await AdoptionRequest.create({
         userId: _id,
@@ -125,7 +125,7 @@ const createRequest = async (req, res, next) => {
       res.status(200).json({ request });
     }
   } catch (err) {
-    if (err.name === "ValidationError") {
+    if (err.name === 'ValidationError') {
       res.status(422).json(err.errors);
     } else {
       next(err);
@@ -167,7 +167,7 @@ const listFoundationsAdmin = async (req, res, next) => {
         limit: 5,
       }
     )
-      .collation({ locale: "en" })
+      .collation({ locale: 'en' })
       .sort({ name: 1 });
     res.status(200).json(foundations);
   } catch (e) {
@@ -186,7 +186,7 @@ const listFoundations = async (req, res, next) => {
         limit: 10,
       }
     )
-      .collation({ locale: "en" })
+      .collation({ locale: 'en' })
       .sort({ name: 1 });
     res.status(200).json(foundations);
   } catch (e) {
@@ -202,7 +202,7 @@ const listUsers = async (req, res, next) => {
       { password: 0, __v: 0, role: 0 },
       { skip: (page - 1) * 5, limit: 5 }
     )
-      .collation({ locale: "en" })
+      .collation({ locale: 'en' })
       .sort({ name: 1 });
     res.status(200).json(users);
   } catch (e) {
@@ -287,7 +287,7 @@ const createPet = async (req, res, next) => {
           fs.rm(
             `uploads/${arrayOfImagesFiles.photoUrl[i].uuid}`,
             { recursive: true },
-            err => {
+            (err) => {
               if (err) {
                 return next(error);
               }
@@ -299,7 +299,7 @@ const createPet = async (req, res, next) => {
   } catch (error) {
     res
       .status(400)
-      .json({ error: "*Please fill in all the fields of the form" });
+      .json({ error: '*Please fill in all the fields of the form' });
   }
 };
 
@@ -323,7 +323,7 @@ const updateProfile = async (req, res, next) => {
           if (error) {
             return next(error);
           }
-          fs.rm(`uploads/${imageFile.uuid}`, { recursive: true }, err => {
+          fs.rm(`uploads/${imageFile.uuid}`, { recursive: true }, (err) => {
             if (err) {
               return next(error);
             }
@@ -353,7 +353,7 @@ const updateProfile = async (req, res, next) => {
       return;
     }
   } catch (error) {
-    res.status(401).json({ error: "User not found" });
+    res.status(401).json({ error: 'User not found' });
   }
 };
 
@@ -364,10 +364,10 @@ const getPet = async (req, res, next) => {
       if (pet) {
         res.status(200).json(pet);
       } else {
-        res.status(404).json({ error: "Pet not found" });
+        res.status(404).json({ error: 'Pet not found' });
       }
     } else {
-      res.status(400).json({ error: "Invalid Pet id" });
+      res.status(400).json({ error: 'Invalid Pet id' });
     }
   } catch (e) {
     next(e);
@@ -387,7 +387,7 @@ const listRequests = async (req, res, next) => {
   try {
     response = await AdoptionRequest.find({
       petId: req.params.petId,
-    }).populate("userId");
+    }).populate('userId');
     res.status(200).json(response);
   } catch (e) {
     next(e);
@@ -405,9 +405,9 @@ const updateRequest = async (req, res, next) => {
       },
       { new: true }
     )
-      .populate("userId")
-      .populate("petId");
-    if (req.body.responseStatus === "approved") {
+      .populate('userId')
+      .populate('petId');
+    if (req.body.responseStatus === 'approved') {
       const pet = await Pet.findOneAndUpdate(
         {
           _id: request.petId,
@@ -416,7 +416,7 @@ const updateRequest = async (req, res, next) => {
           adopted: true,
         }
       );
-      let varPhoto = "";
+      let varPhoto = '';
       if (pet.photoUrl) varPhoto = pet.photoUrl[0];
       sendEmailRequest({
         template_id: templateApproved,
@@ -424,24 +424,24 @@ const updateRequest = async (req, res, next) => {
           name: pet.name,
           photoUrl: varPhoto,
         },
-        to: request["userId"].email,
+        to: request['userId'].email,
       });
     } else {
-      let varPhoto = "";
-      if (request["petId"].photoUrl) varPhoto = request["petId"].photoUrl[0];
+      let varPhoto = '';
+      if (request['petId'].photoUrl) varPhoto = request['petId'].photoUrl[0];
       sendEmailRequest({
         template_id: templateRejected,
         dynamic_template_data: {
-          name: request["petId"].name,
+          name: request['petId'].name,
           photoUrl: varPhoto,
         },
-        to: request["userId"].email,
+        to: request['userId'].email,
       });
     }
     let { _id, userId, petId, description, responseStatus, updatedAt } =
       request;
-    petId = request["petId"]._id;
-    userId = request["userId"]._id;
+    petId = request['petId']._id;
+    userId = request['userId']._id;
     res
       .status(200)
       .json({ _id, userId, petId, description, responseStatus, updatedAt });
@@ -459,7 +459,7 @@ const bulkReject = async (req, res, next) => {
         _id: { $ne: req.body._id },
       },
       {
-        responseStatus: "rejected",
+        responseStatus: 'rejected',
       },
       { new: true }
     );
@@ -469,17 +469,17 @@ const bulkReject = async (req, res, next) => {
       petId: req.params.petId,
       _id: { $ne: req.body._id },
     })
-      .populate("userId")
-      .populate("petId");
+      .populate('userId')
+      .populate('petId');
 
     for (const adoption of request) {
-      const userMail = adoption["userId"].email;
-      let varPhoto = "";
-      if (adoption["petId"].photoUrl) varPhoto = adoption["petId"].photoUrl[0];
+      const userMail = adoption['userId'].email;
+      let varPhoto = '';
+      if (adoption['petId'].photoUrl) varPhoto = adoption['petId'].photoUrl[0];
       sendEmailRequest({
         template_id: templateRejected,
         dynamic_template_data: {
-          name: adoption["petId"].name,
+          name: adoption['petId'].name,
           photoUrl: varPhoto,
         },
         to: userMail,
@@ -495,11 +495,11 @@ const bulkReject = async (req, res, next) => {
 const listFoundationRequests = async (req, res, next) => {
   try {
     response = await AdoptionRequest.find().populate({
-      path: "petId",
+      path: 'petId',
       model: Pet,
     });
     const reqs = response.filter(
-      request => request.petId.foundationId.toString() === req.params.id
+      (request) => request.petId.foundationId.toString() === req.params.id
     );
     res.status(200).json(reqs);
   } catch (e) {
@@ -521,7 +521,7 @@ const listUserRequests = async (req, res, next) => {
     response = await AdoptionRequest.find({
       userId: req.params.userId,
     }).populate({
-      path: "petId",
+      path: 'petId',
       model: Pet,
     });
     res.status(200).json(response);
@@ -536,7 +536,7 @@ const adminSearch = async (req, res, next) => {
     const page = req.query.page || 1;
 
     // _id needs to have length 24 to be valid
-    if (req.body.field === "_id" && req.body.value.length !== 24) {
+    if (req.body.field === '_id' && req.body.value.length !== 24) {
       res.status(200).json([]);
       return;
     }

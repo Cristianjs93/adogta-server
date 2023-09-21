@@ -1,12 +1,12 @@
-const sgMail = require("@sendgrid/mail");
-require("dotenv").config();
-const config = require("../config/index");
+const sgMail = require('@sendgrid/mail');
+require('dotenv').config();
+const config = require('../config/index');
 
 sgMail.setApiKey(config.sendGrid);
 
 function sendMail({
   to,
-  from = "Adogta <adogtatop@gmail.com>",
+  from = 'Adogta <adogtatop@gmail.com>',
   subject,
   template_id,
   dynamic_template_data = {},
@@ -22,9 +22,9 @@ function sendMail({
   sgMail
     .send(msg)
     .then(() => {
-      console.log("Email sent");
+      console.log('Email sent');
     })
-    .catch(error => {
+    .catch((error) => {
       console.error(error);
     });
 }

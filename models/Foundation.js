@@ -1,16 +1,16 @@
-const mongoose = require("mongoose");
-const bcrypt = require("bcrypt");
+const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 
 const foundationSchema = mongoose.Schema(
   {
     email: {
       type: String,
       match: /.+\@.+\..+/,
-      required: [true, "Email is required"],
+      required: [true, 'Email is required'],
       validate: {
         validator: async function (value) {
           const foundation = await Foundation.findOne({ email: value });
-          const user = await mongoose.model("User").findOne({ email: value });
+          const user = await mongoose.model('User').findOne({ email: value });
           if (foundation) {
             return foundation === null;
           } else if (foundation === user) {
@@ -18,16 +18,16 @@ const foundationSchema = mongoose.Schema(
           }
           return foundation;
         },
-        message: "Email is already taken",
+        message: 'Email is already taken',
       },
     },
     password: {
       type: String,
-      required: [true, "Password is required"],
+      required: [true, 'Password is required'],
     },
     name: {
       type: String,
-      required: [true, "Name is required"],
+      required: [true, 'Name is required'],
     },
     address: {
       type: String,
@@ -37,7 +37,7 @@ const foundationSchema = mongoose.Schema(
     },
     role: {
       type: String,
-      required: [true, " Role is required"],
+      required: [true, ' Role is required'],
     },
     active: {
       type: Boolean,
@@ -53,7 +53,7 @@ const foundationSchema = mongoose.Schema(
   }
 );
 
-foundationSchema.pre("save", async function (next) {
+foundationSchema.pre('save', async function (next) {
   try {
     const hash = await bcrypt.hash(this.password, 10);
     this.password = hash;
@@ -73,6 +73,6 @@ foundationSchema.statics.authenticate = async (email, password) => {
   return null;
 };
 
-const Foundation = mongoose.model("Foundation", foundationSchema);
+const Foundation = mongoose.model('Foundation', foundationSchema);
 
 module.exports = Foundation;
