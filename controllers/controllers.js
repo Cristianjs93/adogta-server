@@ -35,14 +35,17 @@ const createUser = async (req, res, next) => {
 
     const token = jwt.sign({ userId: user._id }, config.jwtKey);
 
-    await sendMail({
+    const emailData = {
+      from: 'AdminAdogta <adogta4@gmail.com>',
       to: email,
       template_id: config.senGridTemplateEmailVerification,
       dynamic_template_data: {
         name: newUser.name,
         url: `${config.adogtaPublicUrl}/verified/${hash}`,
       },
-    });
+    };
+
+    sendMail(emailData);
 
     res.status(201).json({ token });
   } catch (err) {
@@ -243,59 +246,31 @@ const destroyPet = async (req, res, next) => {
   }
 };
 
-const createPet = async (req, res, next) => {
-  let imagesFiles = req.files;
-  const { name, age, description } = req.body;
-
-  const data = {
-    name,
-    description,
-    age,
-    foundationId: req.params.foundationId,
-  };
-
+const createPet = async (req, res) => {
   try {
-    let arrayOfImagesFiles = {
-      photoUrl: [],
-    };
-    if (!imagesFiles.photoUrl.length) {
-      arrayOfImagesFiles.photoUrl.push(imagesFiles.photoUrl);
-    } else {
-      arrayOfImagesFiles = {
-        ...imagesFiles,
-      };
-    }
+    const { name, age, description } = req.body;
+    const foundationId = req.params.foundationId;
 
-    let petPhotos = [];
-    for (let i = 0; i < arrayOfImagesFiles.photoUrl.length; i++) {
-      cloudinary.uploader.upload(
-        arrayOfImagesFiles.photoUrl[i].file,
-        async function (error, result) {
-          if (error) {
-            return next(error);
-          }
-          petPhotos.push(result.url);
-          dataPet = {
-            ...data,
-            photoUrl: [...petPhotos],
-          };
-          if (dataPet.photoUrl.length === arrayOfImagesFiles.photoUrl.length) {
-            const pet = new Pet(dataPet);
-            await pet.save();
-            res.status(201).json(pet);
-          }
-          fs.rm(
-            `uploads/${arrayOfImagesFiles.photoUrl[i].uuid}`,
-            { recursive: true },
-            (err) => {
-              if (err) {
-                return next(error);
-              }
-            }
-          );
-        }
-      );
-    }
+    let photoUrl = [];
+
+    const values = Object.values(req.body);
+
+    values.forEach(
+      (value) => value.includes('https://') && photoUrl.push(value)
+    );
+
+    const newPet = {
+      name,
+      age,
+      description,
+      photoUrl,
+      adopted: false,
+      foundationId,
+    };
+
+    const pet = await Pet.create(newPet);
+
+    res.status(201).json(pet);
   } catch (error) {
     res
       .status(400)

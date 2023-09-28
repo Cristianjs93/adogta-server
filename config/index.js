@@ -13,6 +13,9 @@ const config = {
   epaycoApiKey: process.env.EPAYCO_PUBLIC_KEY,
   epaycoPrivateKey: process.env.EPAYCO_PRIVATE_KEY,
   adogtaPublicUrl: process.env.ADOGTA_PUBLIC_URL,
+  cloudName: process.env.CLOUDINARY_CLOUD_NAME,
+  cloudinaryKey: process.env.CLOUDINARY_API_KEY,
+  cloudinarySecret: process.env.CLOUDINARY_API_SECRET,
 };
 
 module.exports = config;

@@ -59,13 +59,16 @@ async function epaycoPayment(req, res) {
     });
     await newPayment.save();
 
-    await sendMail({
+    const emailData = {
+      from: 'AdminAdogta <adogta4@gmail.com>',
       to: user.email,
       template_id: config.senGridDonation,
       dynamic_template_data: {
         name: user.name,
       },
-    });
+    };
+
+    sendMail(emailData);
 
     res.status(201).json({ data });
   } catch (error) {
