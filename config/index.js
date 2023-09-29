@@ -7,6 +7,7 @@ const config = {
   senGridTemplateId: process.env.SENGRID_TEMPLATE_ID,
   senGridTemplateEmailVerification:
     process.env.SENGRID_TEMPLATE_EMAIL_VERIFICATION,
+  templateAdoptionRequest: process.env.SENGRID_TEMPLATE_ADOPTION_REQUEST,
   templateApproved: process.env.SENDGRID_TEMPLATE_ACCEPTED,
   templateRejected: process.env.SENDGRID_TEMPLATE_REJECTED,
   senGridDonation: process.env.SENGRID_TEMPLATE_DONATION,

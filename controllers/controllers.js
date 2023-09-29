@@ -117,13 +117,16 @@ const createRequest = async (req, res, next) => {
         }
       );
 
-      await sendMail({
+      const emailData = {
+        from: 'AdminAdogta <adogta4@gmail.com>',
         to: email,
-        template_id: config.senGridTemplateId,
+        template_id: config.templateAdoptionRequest,
         dynamic_template_data: {
           name: name,
         },
-      });
+      };
+
+      sendMail(emailData);
 
       res.status(200).json({ request });
     }
@@ -404,19 +407,26 @@ const updateRequest = async (req, res, next) => {
     } else {
       let varPhoto = '';
       if (request['petId'].photoUrl) varPhoto = request['petId'].photoUrl[0];
-      sendEmailRequest({
-        template_id: templateRejected,
+
+      const emailData = {
+        from: 'AdminAdogta <adogta4@gmail.com>',
+        to: request['userId'].email,
+        template_id: config.templateRejected,
         dynamic_template_data: {
           name: request['petId'].name,
           photoUrl: varPhoto,
         },
-        to: request['userId'].email,
-      });
+      };
+
+      sendMail(emailData);
     }
+
     let { _id, userId, petId, description, responseStatus, updatedAt } =
       request;
+
     petId = request['petId']._id;
     userId = request['userId']._id;
+
     res
       .status(200)
       .json({ _id, userId, petId, description, responseStatus, updatedAt });
@@ -469,7 +479,7 @@ const bulkReject = async (req, res, next) => {
 
 const listFoundationRequests = async (req, res, next) => {
   try {
-    response = await AdoptionRequest.find().populate({
+    const response = await AdoptionRequest.find().populate({
       path: 'petId',
       model: Pet,
     });
