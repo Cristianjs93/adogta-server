@@ -385,6 +385,7 @@ const updateRequest = async (req, res, next) => {
     )
       .populate('userId')
       .populate('petId');
+
     if (req.body.responseStatus === 'approved') {
       const pet = await Pet.findOneAndUpdate(
         {
@@ -396,14 +397,17 @@ const updateRequest = async (req, res, next) => {
       );
       let varPhoto = '';
       if (pet.photoUrl) varPhoto = pet.photoUrl[0];
-      sendEmailRequest({
-        template_id: templateApproved,
+      const emailData = {
+        from: 'AdminAdogta <adogta4@gmail.com>',
+        to: request['userId'].email,
+        template_id: config.templateApproved,
         dynamic_template_data: {
-          name: pet.name,
+          name: request['petId'].name,
           photoUrl: varPhoto,
         },
-        to: request['userId'].email,
-      });
+      };
+
+      sendMail(emailData);
     } else {
       let varPhoto = '';
       if (request['petId'].photoUrl) varPhoto = request['petId'].photoUrl[0];
@@ -441,7 +445,7 @@ const bulkReject = async (req, res, next) => {
     await AdoptionRequest.updateMany(
       {
         petId: req.params.petId,
-        _id: { $ne: req.body._id },
+        _id: { $ne: req.body.requestId },
       },
       {
         responseStatus: 'rejected',
@@ -461,15 +465,20 @@ const bulkReject = async (req, res, next) => {
       const userMail = adoption['userId'].email;
       let varPhoto = '';
       if (adoption['petId'].photoUrl) varPhoto = adoption['petId'].photoUrl[0];
-      sendEmailRequest({
-        template_id: templateRejected,
+
+      const emailData = {
+        from: 'AdminAdogta <adogta4@gmail.com>',
+        to: userMail,
+        template_id: config.templateRejected,
         dynamic_template_data: {
           name: adoption['petId'].name,
           photoUrl: varPhoto,
         },
-        to: userMail,
-      });
+      };
+
+      sendMail(emailData);
     }
+
     res.status(204).end();
   } catch (e) {
     console.error(e);
