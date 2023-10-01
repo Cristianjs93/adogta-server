@@ -281,55 +281,32 @@ const createPet = async (req, res) => {
   }
 };
 
-const updateProfile = async (req, res, next) => {
+const updateProfile = async (req, res) => {
   const { name, address, email, phoneNumber, photoUrl, _id, role } = req.body;
-  data = {
+  const updatedProfile = {
     name,
     address,
     phoneNumber,
     email,
     _id,
     role,
+    photoUrl,
   };
-  const imageFile = req.files.image;
   const schemas = { user: User, foundation: Foundation };
   try {
-    if (imageFile) {
-      cloudinary.uploader.upload(
-        imageFile.file,
-        async function (error, result) {
-          if (error) {
-            return next(error);
-          }
-          fs.rm(`uploads/${imageFile.uuid}`, { recursive: true }, (err) => {
-            if (err) {
-              return next(error);
-            }
-          });
+    await schemas[role].findByIdAndUpdate(_id, {
+      ...updatedProfile,
+    });
 
-          await schemas[role].findByIdAndUpdate(_id, {
-            ...data,
-            photoUrl: result.url,
-          });
-          res.status(200).json({
-            name,
-            email,
-            address,
-            phoneNumber,
-            role,
-            photoUrl: result.url,
-            _id,
-          });
-          return;
-        }
-      );
-    } else {
-      await schemas[role].findByIdAndUpdate(_id, data);
-      res
-        .status(200)
-        .json({ name, email, address, phoneNumber, role, photoUrl, _id });
-      return;
-    }
+    res.status(200).json({
+      name,
+      email,
+      address,
+      phoneNumber,
+      role,
+      photoUrl,
+      _id,
+    });
   } catch (error) {
     res.status(401).json({ error: 'User not found' });
   }

@@ -6,7 +6,7 @@ const app = express.Router();
 
 app.get('/me', auth, controllers.loadUser);
 app.post('/login', controllers.login);
-app.put('/:id/profile', auth, controllers.updateProfile);
+app.put('/:id/profile', auth, formData, controllers.updateProfile);
 app.delete('/pets/:petId', auth, controllers.destroyPet);
 app.get('/foundations', auth, controllers.listFoundations);
 app.get('/foundations/:foundationId/pets', auth, controllers.listPets);
