@@ -15,7 +15,8 @@ const templateRejected = config.templateRejected;
 const sendMail = require('../utils/sendMail');
 
 const createUser = async (req, res, next) => {
-  const { email, role } = req.body;
+  const { name } = req.body;
+  const { email, role } = name;
   try {
     const schema = {
       user: User,
@@ -23,15 +24,20 @@ const createUser = async (req, res, next) => {
       foundation: Foundation,
     };
 
-    const newUser = await new schema[role](req.body);
+    let newUser = await new schema[role](req.body);
+
+    const { _id, active } = newUser;
+
+    newUser = { _id, active, ...name };
 
     const hash = crypto
       .createHash('sha256')
       .update(newUser.email)
       .digest('hex');
+
     newUser.passwordResetToken = hash;
 
-    const user = await newUser.save();
+    const user = await User.create(newUser);
 
     const token = jwt.sign({ userId: user._id }, config.jwtKey);
 
@@ -433,7 +439,7 @@ const bulkReject = async (req, res, next) => {
     // There is no method to update multiple documents and return all updated documents in mongoose.
     const request = await AdoptionRequest.find({
       petId: req.params.petId,
-      _id: { $ne: req.body._id },
+      _id: { $ne: req.body.requestId },
     })
       .populate('userId')
       .populate('petId');
@@ -456,7 +462,7 @@ const bulkReject = async (req, res, next) => {
       sendMail(emailData);
     }
 
-    res.status(204).end();
+    res.status(200).json(req.body.requestId);
   } catch (e) {
     console.error(e);
     next(e);
