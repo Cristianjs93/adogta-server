@@ -12,6 +12,8 @@ app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
 
+mongoose.set('strictQuery', false);
+
 app.use(routes);
 process.env.NODE_ENV === 'test'
   ? mongoose.connect(
