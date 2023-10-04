@@ -466,6 +466,27 @@ const bulkReject = async (req, res, next) => {
   }
 };
 
+const getFoundationById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const response = await Foundation.findById(id);
+
+    const foundation = {
+      id: response._id,
+      name: response.name,
+      email: response.email,
+      address: response.address,
+      phone: response.phoneNumber,
+      photo_url: response.photoUrl,
+    };
+
+    res.status(200).json(foundation);
+  } catch (e) {
+    next(e);
+  }
+};
+
 const listFoundationRequests = async (req, res, next) => {
   try {
     const response = await AdoptionRequest.find().populate({
@@ -545,6 +566,7 @@ module.exports = {
   listRequests,
   updateRequest,
   getPet,
+  getFoundationById,
   listFoundationRequests,
   createUser,
   login,

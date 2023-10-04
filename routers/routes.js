@@ -10,6 +10,7 @@ app.put('/:id/profile', auth, formData, controllers.updateProfile);
 app.delete('/pets/:petId', auth, controllers.destroyPet);
 app.get('/foundations', auth, controllers.listFoundations);
 app.get('/foundations/:foundationId/pets', auth, controllers.listPets);
+app.get('/foundations/:id', controllers.getFoundationById);
 app.get('/foundations/:id/requests', controllers.listFoundationRequests);
 app.post('/foundations/:foundationId/pets', formData, controllers.createPet);
 app.get('/pets/:petId', auth, controllers.getPet);
