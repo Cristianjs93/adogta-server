@@ -4,15 +4,9 @@ const jwt = require('jsonwebtoken');
 const config = require('../config/index');
 const Pet = require('../models/Pet');
 const AdoptionRequest = require('../models/AdoptionRequest');
-const cloudinary = require('cloudinary').v2;
-const fs = require('fs');
 const crypto = require('crypto');
-const sendEmailRequest = require('../utils/sendEmailRequest');
-require('dotenv').config();
-
-const templateApproved = config.templateApproved;
-const templateRejected = config.templateRejected;
 const sendMail = require('../utils/sendMail');
+require('dotenv').config();
 
 const createUser = async (req, res, next) => {
   const { name } = req.body;
@@ -37,7 +31,10 @@ const createUser = async (req, res, next) => {
 
     newUser.passwordResetToken = hash;
 
-    const user = await User.create(newUser);
+    const user =
+      newUser.role == 'user'
+        ? await User.create(newUser)
+        : await Foundation.create(newUser);
 
     const token = jwt.sign({ userId: user._id }, config.jwtKey);
 
@@ -475,6 +472,7 @@ const listFoundationRequests = async (req, res, next) => {
       path: 'petId',
       model: Pet,
     });
+
     const reqs = response.filter(
       (request) => request.petId.foundationId.toString() === req.params.id
     );
