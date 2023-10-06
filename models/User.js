@@ -49,12 +49,12 @@ const userSchema = mongoose.Schema(
     photoUrl: {
       type: String,
     },
-    epaycoCustomerId: {
-      type: String,
-    },
-    token_card: {
-      type: String,
-    },
+    // epaycoCustomerId: {
+    //   type: String,
+    // },
+    // token_card: {
+    //   type: String,
+    // },
   },
   {
     timestamps: true,

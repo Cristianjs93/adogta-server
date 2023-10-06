@@ -6,19 +6,19 @@ const PaymentSchema = mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
     },
-    epaycoCustomerId: {
-      type: String,
-      required: true,
-    },
+    // epaycoCustomerId: {
+    //   type: String,
+    //   required: true,
+    // },
     foundationId: {
       type: mongoose.Schema.Types.ObjectId,
       required: 'Foundation',
     },
-    ref_payco: {
-      type: String,
-      unique: true,
-      required: true,
-    },
+    // ref_payco: {
+    //   type: String,
+    //   unique: true,
+    //   required: true,
+    // },
     factura: {
       type: String,
       required: true,
