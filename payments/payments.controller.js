@@ -11,9 +11,16 @@ async function PaymentHandler(req, res) {
   const { paymentMethod, amount, email } = req.body;
 
   try {
-    const { id, billing_details } = paymentMethod;
+    const {
+      id,
+      billing_details: { name },
+    } = paymentMethod;
 
-    const customerId = await createCustomer(id, email);
+    const customerId = await createCustomer(id, email, name);
+
+    if (!customerId) {
+      throw new Error('Something went wrong.');
+    }
 
     if (typeof customerId !== 'string') {
       throw new Error(customerId.message);
@@ -29,14 +36,16 @@ async function PaymentHandler(req, res) {
       return_url: 'http://localhost:3000',
     });
 
-    console.log('PAYMENT', payment);
+    if (!payment) {
+      throw new Error('Something went wrong.');
+    }
 
     const emailData = {
       from: 'AdminAdogta <adogta4@gmail.com>',
       to: email,
       template_id: config.senGridDonation,
       dynamic_template_data: {
-        name: billing_details.name,
+        name: name,
       },
     };
 

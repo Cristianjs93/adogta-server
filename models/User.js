@@ -49,12 +49,9 @@ const userSchema = mongoose.Schema(
     photoUrl: {
       type: String,
     },
-    // epaycoCustomerId: {
-    //   type: String,
-    // },
-    // token_card: {
-    //   type: String,
-    // },
+    stripeCustomerId: {
+      type: String,
+    },
   },
   {
     timestamps: true,
