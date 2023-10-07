@@ -1,20 +1,19 @@
-const User = require('../models/User');
 const Payment = require('../models/payments');
-const createCustomer = require('../utils/createCustomer');
-
 const config = require('../config/index');
+const stripe = require('stripe')(config.stripeSecret);
+const createCustomer = require('../utils/createCustomer');
 const sendMail = require('../utils/sendMail');
 
-const stripe = require('stripe')(config.stripeSecret);
-
 async function PaymentHandler(req, res) {
-  const { paymentMethod, amount, email } = req.body;
-
   try {
+    const { paymentMethod, amount, email, foundationId, userId } = req.body;
+
     const {
       id,
-      billing_details: { name },
+      billing_details: { name, address, phone },
     } = paymentMethod;
+
+    const { city, country, line1, line2 } = address;
 
     const customerId = await createCustomer(id, email, name);
 
@@ -23,10 +22,11 @@ async function PaymentHandler(req, res) {
     }
 
     if (typeof customerId !== 'string') {
+      console.log('CUSTOMER', customerId);
       throw new Error(customerId.message);
     }
 
-    const payment = await stripe.paymentIntents.create({
+    const stripePayment = await stripe.paymentIntents.create({
       customer: customerId,
       payment_method: id,
       amount,
@@ -36,9 +36,32 @@ async function PaymentHandler(req, res) {
       return_url: 'http://localhost:3000',
     });
 
-    if (!payment) {
+    if (!stripePayment) {
       throw new Error('Something went wrong.');
     }
+
+    const payment = {
+      userId,
+      foundationId,
+      bill: {
+        stripe_id: stripePayment.id,
+        customer: stripePayment.customer,
+        amount: stripePayment.amount / 100,
+        payment_method: stripePayment.payment_method,
+        payment_method_types: stripePayment.payment_method_types.join(','),
+        status: stripePayment.status,
+        description: stripePayment.description,
+        name,
+        email,
+        phone,
+        city,
+        country,
+        line1,
+        line2,
+      },
+    };
+
+    const paymentResponse = await Payment.create(payment);
 
     const emailData = {
       from: 'AdminAdogta <adogta4@gmail.com>',
@@ -51,73 +74,10 @@ async function PaymentHandler(req, res) {
 
     sendMail(emailData);
 
-    res.status(201).json(payment);
+    res.status(201).json(paymentResponse);
   } catch (error) {
     res.status(200).json({ message: error.message });
   }
-  // const cardInfo = req.body;
-  // const user = res.locals.user;
-  // let card_token;
-  // let userId;
-
-  // // crea el token de la tarjeta
-  // try {
-  //   const token = await epayco.token.create(cardInfo);
-  //   const filter = { _id: user._id };
-  //   const update = { token_card: token.id };
-
-  //   await User.findOneAndUpdate(filter, update);
-  //   card_token = token.id;
-  // } catch (error) {
-  //   res.status(500).send(error.errors);
-  // }
-  // // Crea el usuario y hace udpate del user id en el modelo de usuario
-  // try {
-  //   const customerInfo = { ...cardInfo, token_card: card_token };
-  //   const customer = await epayco.customers.create(customerInfo);
-
-  //   const {
-  //     data: { customerId },
-  //   } = customer;
-  //   const filter = { _id: user._id };
-  //   const update = { epaycoCustomerId: customerId };
-  //   await User.findOneAndUpdate(filter, update);
-  //   userId = customerId;
-  // } catch (error) {
-  //   res.status(500).send(error.errors);
-  // }
-  // // Hacer el pago
-  // try {
-  //   const paymentInfo2 = {
-  //     customer_id: userId,
-  //     token_card: card_token,
-  //     ...cardInfo,
-  //   };
-
-  //   const { data: data } = await epayco.charge.create(paymentInfo2);
-  //   const newPayment = new Payment({
-  //     ...data,
-  //     userId: user._id,
-  //     epaycoCustomerId: userId,
-  //     foundationId: req.body.foundationId,
-  //   });
-  //   await newPayment.save();
-
-  //   const emailData = {
-  //     from: 'AdminAdogta <adogta4@gmail.com>',
-  //     to: user.email,
-  //     template_id: config.senGridDonation,
-  //     dynamic_template_data: {
-  //       name: user.name,
-  //     },
-  //   };
-
-  //   sendMail(emailData);
-
-  //   res.status(201).json({ data });
-  // } catch (error) {
-  //   res.status(500).send(error.errors);
-  // }
 }
 
 module.exports = {
