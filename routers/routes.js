@@ -4,6 +4,7 @@ const paymentController = require('../payments/payments.controller');
 const { auth, authAdmin, formData } = require('../middlewares/middlewares');
 const app = express.Router();
 
+app.get('/healthcheck', controllers.healthcheck);
 app.get('/me', auth, controllers.loadUser);
 app.post('/login', controllers.login);
 app.put('/:id/profile', auth, formData, controllers.updateProfile);

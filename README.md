@@ -13,7 +13,7 @@
 
 ## Overview :writing_hand:
 
-REST API for Agosta App. The application connects to a user interface developed with Reactjs. This repository contains the backend structure. Here is the link to the frontend repository: [Frontend Repository](https://github.com/Cristianjs93/adogta-client), and the link to the deployed application on Vercel: [Deployed Project]()."
+REST API for Agosta App. This repository contains the backend structure and the link to the deployed API on Render: [Deployed Project](https://adogta-server.onrender.com).". The application connects to a user interface developed with Reactjs. Here is the link to the frontend repository: [Frontend Repository](https://github.com/Cristianjs93/adogta-client).
 
 ### Installation :gear:
 

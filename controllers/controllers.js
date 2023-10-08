@@ -8,6 +8,10 @@ const crypto = require('crypto');
 const sendMail = require('../utils/sendMail');
 require('dotenv').config();
 
+const healthcheck = async (_, res) => {
+  res.status(200).json({ message: 'Server ok' });
+};
+
 const createUser = async (req, res, next) => {
   const { name } = req.body;
   const { email, role } = name;
@@ -559,6 +563,7 @@ const adminSearch = async (req, res, next) => {
 };
 
 module.exports = {
+  healthcheck,
   listFoundations,
   destroyPet,
   listPets,
