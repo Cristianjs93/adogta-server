@@ -1,14 +1,14 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const petSchema = mongoose.Schema(
   {
     name: {
       type: String,
-      required: [true, "Name is required"],
+      required: [true, 'Name is required'],
     },
     description: {
       type: String,
-      required: [true, "A description is required"],
+      required: [true, 'A description is required'],
     },
     photoUrl: [
       {
@@ -22,7 +22,7 @@ const petSchema = mongoose.Schema(
     },
     foundationId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Foundation",
+      ref: 'Foundation',
       required: true,
     },
     adopted: {
@@ -35,6 +35,6 @@ const petSchema = mongoose.Schema(
   }
 );
 
-const Pet = mongoose.model("Pet", petSchema);
+const Pet = mongoose.model('Pet', petSchema);
 
 module.exports = Pet;

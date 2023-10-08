@@ -1,78 +1,85 @@
-const config = require("../config/index");
-const sendMail = require("../utils/sendMail");
-const epayco = require("epayco-sdk-node")({
-  apiKey: config.epaycoApiKey,
-  privateKey: config.epaycoPrivateKey,
-  lang: "EN",
-  test: true,
-});
+const Payment = require('../models/payments');
+const config = require('../config/index');
+const stripe = require('stripe')(config.stripeSecret);
+const createCustomer = require('../utils/createCustomer');
+const sendMail = require('../utils/sendMail');
 
-const User = require("../models/User");
-const Payment = require("../models/payments");
-
-async function epaycoPayment(req, res) {
-  const cardInfo = req.body;
-  const user = res.locals.user;
-  let card_token;
-  let userId;
-
-  // crea el token de la tarjeta
+async function PaymentHandler(req, res) {
   try {
-    const token = await epayco.token.create(cardInfo);
-    const filter = { _id: user._id };
-    const update = { token_card: token.id };
-
-    await User.findOneAndUpdate(filter, update);
-    card_token = token.id;
-  } catch (error) {
-    res.status(500).send(error.errors);
-  }
-  // Crea el usuario y hace udpate del user id en el modelo de usuario
-  try {
-    const customerInfo = { ...cardInfo, token_card: card_token };
-    const customer = await epayco.customers.create(customerInfo);
+    const { paymentMethod, amount, email, foundationId, userId } = req.body;
 
     const {
-      data: { customerId },
-    } = customer;
-    const filter = { _id: user._id };
-    const update = { epaycoCustomerId: customerId };
-    await User.findOneAndUpdate(filter, update);
-    userId = customerId;
-  } catch (error) {
-    res.status(500).send(error.errors);
-  }
-  // Hacer el pago
-  try {
-    const paymentInfo2 = {
-      customer_id: userId,
-      token_card: card_token,
-      ...cardInfo,
+      id,
+      billing_details: { name, address, phone },
+    } = paymentMethod;
+
+    const { city, country, line1, line2 } = address;
+
+    const customerId = await createCustomer(id, email, name);
+
+    if (!customerId) {
+      throw new Error('Something went wrong.');
+    }
+
+    if (typeof customerId !== 'string') {
+      console.log('CUSTOMER', customerId);
+      throw new Error(customerId.message);
+    }
+
+    const stripePayment = await stripe.paymentIntents.create({
+      customer: customerId,
+      payment_method: id,
+      amount,
+      currency: 'USD',
+      confirm: true,
+      description: 'Donation recieved successfully',
+      return_url: 'http://localhost:3000',
+    });
+
+    if (!stripePayment) {
+      throw new Error('Something went wrong.');
+    }
+
+    const payment = {
+      userId,
+      foundationId,
+      bill: {
+        stripe_id: stripePayment.id,
+        customer: stripePayment.customer,
+        amount: stripePayment.amount / 100,
+        payment_method: stripePayment.payment_method,
+        payment_method_types: stripePayment.payment_method_types.join(','),
+        status: stripePayment.status,
+        description: stripePayment.description,
+        name,
+        email,
+        phone,
+        city,
+        country,
+        line1,
+        line2,
+      },
     };
 
-    const { data: data } = await epayco.charge.create(paymentInfo2);
-    const newPayment = new Payment({
-      ...data,
-      userId: user._id,
-      epaycoCustomerId: userId,
-      foundationId: req.body.foundationId,
-    });
-    await newPayment.save();
+    const paymentResponse = await Payment.create(payment);
 
-    await sendMail({
-      to: user.email,
+    const emailData = {
+      from: 'AdminAdogta <adogta4@gmail.com>',
+      to: email,
       template_id: config.senGridDonation,
       dynamic_template_data: {
-        name: user.name,
+        name: name,
       },
-    });
+    };
 
-    res.status(201).json({ data });
+    sendMail(emailData);
+
+    res.status(201).json(paymentResponse);
   } catch (error) {
-    res.status(500).send(error.errors);
+    res.status(200).json({ message: error.message });
   }
 }
 
 module.exports = {
-  epaycoPayment,
+  PaymentHandler,
 };

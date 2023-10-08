@@ -1,15 +1,15 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const adoptionRequestSchema = mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: 'User',
       required: true,
     },
     petId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Pet",
+      ref: 'Pet',
       required: true,
     },
     description: {
@@ -17,7 +17,7 @@ const adoptionRequestSchema = mongoose.Schema(
       required: true,
     },
     responseStatus: {
-      default: "pending",
+      default: 'pending',
       type: String,
     },
   },
@@ -27,7 +27,7 @@ const adoptionRequestSchema = mongoose.Schema(
 );
 
 const AdoptionRequest = mongoose.model(
-  "adoptionrequests",
+  'adoptionrequests',
   adoptionRequestSchema
 );
 

@@ -1,17 +1,17 @@
-const mongoose = require("mongoose");
-const bcrypt = require("bcrypt");
+const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 
 const userSchema = mongoose.Schema(
   {
     email: {
       type: String,
       match: /.+\@.+\..+/,
-      required: [true, "Email is required"],
+      required: [true, 'Email is required'],
       validate: {
         validator: async function (value) {
           const user = await User.findOne({ email: value });
           const foundation = await mongoose
-            .model("Foundation")
+            .model('Foundation')
             .findOne({ email: value });
           if (user) {
             return user === null;
@@ -20,16 +20,16 @@ const userSchema = mongoose.Schema(
           }
           return user;
         },
-        message: "Email is already taken",
+        message: 'Email is already taken',
       },
     },
     password: {
       type: String,
-      required: [true, "Password is required"],
+      required: [true, 'Password is required'],
     },
     name: {
       type: String,
-      required: [true, "Name is required"],
+      required: [true, 'Name is required'],
     },
     address: {
       type: String,
@@ -39,7 +39,7 @@ const userSchema = mongoose.Schema(
     },
     role: {
       type: String,
-      required: [true, " Role is required"],
+      required: [true, ' Role is required'],
     },
     active: {
       type: Boolean,
@@ -49,10 +49,7 @@ const userSchema = mongoose.Schema(
     photoUrl: {
       type: String,
     },
-    epaycoCustomerId: {
-      type: String,
-    },
-    token_card: {
+    stripeCustomerId: {
       type: String,
     },
   },
@@ -61,7 +58,7 @@ const userSchema = mongoose.Schema(
   }
 );
 
-userSchema.pre("save", async function (next) {
+userSchema.pre('save', async function (next) {
   try {
     const hash = await bcrypt.hash(this.password, 10);
     this.password = hash;
@@ -74,21 +71,21 @@ userSchema.pre("save", async function (next) {
 userSchema.statics.authenticate = async (email, password) => {
   let user = await User.findOne({ email });
 
-  !user && (user = await mongoose.model("Foundation").findOne({ email }));
+  !user && (user = await mongoose.model('Foundation').findOne({ email }));
 
   if (user && user.active === true) {
     const result = await bcrypt.compare(password, user.password);
     if (result) {
       return user;
     }
-    throw new Error("Invalid password");
+    throw new Error('Invalid password');
   } else if (user && user.active === false) {
-    throw new Error("Please verify your email");
+    throw new Error('Please verify your email');
   } else {
-    throw new Error("User does not exist");
+    throw new Error('User does not exist');
   }
 };
 
-const User = mongoose.model("User", userSchema);
+const User = mongoose.model('User', userSchema);
 
 module.exports = User;
