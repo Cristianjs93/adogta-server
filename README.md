@@ -47,28 +47,28 @@ cd adogta-server
 
 | Route                            | HTTP Verb | Description                    |
 | -------------------------------- | --------- | ------------------------------ |
-| /me                              | GET       | Load a loged user              |
+| /signup                          | POST      | Creates a user                 |
+| /verified/:token                 | GET       | Verifiesuser email             |
 | /login                           | POST      | User log in                    |
+| /me                              | GET       | Load a loged user              |
 | /:id/profile                     | PUT       | Updates user profile           |
-| /pets/:petId                     | DELETE    | Deletes a pet                  |
+| /:userId/requests                | GET       | List user request              |
 | /foundations                     | GET       | List of foundations            |
-| /foundations/:foundationId/pets  | GET       | List of pets                   |
-| /foundations/:foundationId/pets  | POST      | Create a pet                   |
 | /foundations/:id                 | GET       | Get individual foundation      |
 | /foundations/:id/requests        | GET       | List foundation request        |
-| /pets/:petId                     | POST      | Get individual pet             |
+| /foundations/:foundationId/pets  | GET       | List of pets                   |
+| /foundations/:foundationId/pets  | POST      | Create a pet                   |
+| /pets/:petId                     | GET       | Get individual pet             |
+| /pets/:petId                     | DELETE    | Deletes a pet                  |
 | /pets/:petId/requests            | GET       | Get individual pet request     |
-| /pets/:petId/requests/:requestId | PUT       | Updates individual pet request |
 | /pets/:petId/requests/           | PUT       | Reject individual pet request  |
+| /pets/:petId/requests/:requestId | PUT       | Updates individual pet request |
+| /pets/:petId/request             | POST      | Creates an adoption request    |
 | /admin                           | GET       | List of foundations            |
 | /admin                           | DELETE    | Deletes a foundation           |
 | /admin/users                     | GET       | List of users                  |
 | /admin/users                     | DELETE    | Deletes a user                 |
-| /signup                          | POST      | Creates a user                 |
-| /pets/:petId/request             | POST      | Creates an adoption request    |
-| /:userId/requests                | GET       | List user request              |
 | /adminSearch                     | POST      | Searchs foundations            |
-| /verified/:token                 | GET       | Verifiesuser email             |
 | /donate/payment                  | POST      | Create a donation              |
 
 ### Basic example **Create User** `/signup`:
